@@ -56,7 +56,7 @@ public class PlayerMovement : MonoBehaviour
                 animator.SetBool("isWalking", false);
             }
 
-            isGrounded = Physics.CheckSphere(transform.position, groundDistance, groundMask);
+            isGrounded = Physics.CheckSphere(art.transform.position, groundDistance, groundMask);
             if (isGrounded && velocity.y < -1.5f)
             {
                 velocity.y = -1.5f;

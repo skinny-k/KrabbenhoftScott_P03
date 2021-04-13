@@ -10,6 +10,7 @@ public class TallGrassBehavior : MonoBehaviour
         {
             PlayerAbilities player = other.GetComponent<PlayerAbilities>();
             player.isConcealed = true;
+            player.hidingIn = this;
         }
     }
 
@@ -18,7 +19,10 @@ public class TallGrassBehavior : MonoBehaviour
         if (other.gameObject.tag == "Player")
         {
             PlayerAbilities player = other.GetComponent<PlayerAbilities>();
-            player.isConcealed = false;
+            if (player.hidingIn == this)
+            {
+                player.isConcealed = false;
+            }
         }
     }
 }

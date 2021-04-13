@@ -23,18 +23,21 @@ public class SearchVolume : MonoBehaviour
     
     void Update()
     {
-        if (playerInLOS && player != null && !playerAbilities.isHidden)
+        if (enemy.unpaused)
         {
-            RaycastHit hit;
-            enemy.eyes.LookAt(player.transform.position);
-            Physics.Raycast(enemy.eyes.position, enemy.eyes.transform.forward, out hit, range);
-            if (hit.transform.gameObject.tag == "Player")
+            if (playerInLOS)
             {
-                canSeePlayer = true;
-            }
-            else
-            {
-                canSeePlayer = false;
+                RaycastHit hit;
+                enemy.eyes.LookAt(enemy.lastKnownPosition);
+                bool ray = Physics.Raycast(enemy.eyes.position, enemy.eyes.forward, out hit, range);
+                if (ray && hit.transform.gameObject.tag == "Player" && !playerAbilities.isHidden)
+                {
+                    canSeePlayer = true;
+                }
+                else
+                {
+                    canSeePlayer = false;
+                }
             }
         }
     }
@@ -45,6 +48,7 @@ public class SearchVolume : MonoBehaviour
         {
             player = other.gameObject;
             playerAbilities = player.GetComponent<PlayerAbilities>();
+            enemy.lastKnownPosition = player.transform.position;
             playerInLOS = true;
         }
     }

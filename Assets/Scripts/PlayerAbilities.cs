@@ -6,6 +6,7 @@ public class PlayerAbilities : MonoBehaviour
 {
     PlayerMovement movement;
     
+    public TallGrassBehavior hidingIn;
     public bool isConcealed = false;
     public bool isHidden = false;
 
