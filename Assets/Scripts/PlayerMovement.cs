@@ -25,7 +25,7 @@ public class PlayerMovement : MonoBehaviour
     bool lastFrameGrounded = true;
     bool isSprinting = false;
 
-    public bool test = false;
+    public bool isMoving;
     
     void Start()
     {
@@ -64,12 +64,13 @@ public class PlayerMovement : MonoBehaviour
 
             bool isMovingX = Input.GetAxis("Horizontal") != 0;
             bool isMovingZ = Input.GetAxis("Vertical") != 0;
+            isMoving = isMovingX || isMovingZ;
             Quaternion targetRotation = Quaternion.Euler(0, Camera.main.transform.localRotation.eulerAngles.y, 0);
             if ((Mathf.Abs(Input.GetAxis("Horizontal")) <= 0.5f) && isMovingX || (Mathf.Abs(Input.GetAxis("Vertical")) <= 0.5f) && isMovingZ)
             {
                 art.transform.rotation = Quaternion.Slerp(art.transform.rotation, targetRotation, turnBuffer);
             }
-            else if (isMovingX || isMovingZ)
+            else if (isMoving)
             {
                 art.transform.rotation = targetRotation;
             }
