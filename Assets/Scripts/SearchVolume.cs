@@ -7,6 +7,7 @@ public class SearchVolume : MonoBehaviour
     GameObject origin;
     EnemyBehavior enemy;
     PlayerAbilities playerAbilities;
+    LayerMask mask;
     float range;
     
     public GameObject player = null;
@@ -19,6 +20,7 @@ public class SearchVolume : MonoBehaviour
         enemy = origin.GetComponent<EnemyBehavior>();
         range = enemy.range;
         transform.localScale = new Vector3(enemy.FOV, 1f, range);
+        mask = LayerMask.GetMask("Player", "Ground");
     }
     
     void Update()
@@ -29,7 +31,7 @@ public class SearchVolume : MonoBehaviour
             {
                 RaycastHit hit;
                 enemy.eyes.LookAt(enemy.lastKnownPosition);
-                bool ray = Physics.Raycast(enemy.eyes.position, enemy.eyes.forward, out hit, range);
+                bool ray = Physics.Raycast(enemy.eyes.position, enemy.eyes.forward, out hit, range, mask);
                 if (ray && hit.transform.gameObject.tag == "Player" && !playerAbilities.isHidden)
                 {
                     canSeePlayer = true;
@@ -50,6 +52,14 @@ public class SearchVolume : MonoBehaviour
             playerAbilities = player.GetComponent<PlayerAbilities>();
             enemy.lastKnownPosition = player.transform.position;
             playerInLOS = true;
+        }
+        if (other.gameObject.tag == "Corpse")
+        {
+            CorpseBehavior corpse = other.GetComponent<CorpseBehavior>();
+            if (!corpse.isConcealed)
+            {
+                enemy.isAlerted = true;
+            }
         }
     }
 

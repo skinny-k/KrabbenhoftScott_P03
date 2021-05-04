@@ -12,6 +12,12 @@ public class TallGrassBehavior : MonoBehaviour
             player.isConcealed = true;
             player.hidingIn = this;
         }
+        else if (other.gameObject.tag == "Enemy")
+        {
+            EnemyBehavior enemy = other.GetComponent<EnemyBehavior>();
+            enemy.isConcealed = true;
+            enemy.hidingIn = this;
+        }
     }
 
     void OnTriggerExit(Collider other)
@@ -22,6 +28,14 @@ public class TallGrassBehavior : MonoBehaviour
             if (player.hidingIn == this)
             {
                 player.isConcealed = false;
+            }
+        }
+        else if (other.gameObject.tag == "Enemy")
+        {
+            EnemyBehavior enemy = other.GetComponent<EnemyBehavior>();
+            if (enemy.hidingIn == this)
+            {
+                enemy.isConcealed = false;
             }
         }
     }

@@ -14,7 +14,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float gravity = 9.8f;
     [SerializeField] float terminalVelocity = 200000f;
 
-    Animator animator;
     CharacterController body;
     LayerMask groundMask;
     Vector3 velocity = Vector3.zero;
@@ -25,6 +24,7 @@ public class PlayerMovement : MonoBehaviour
     bool lastFrameGrounded = true;
     bool isSprinting = false;
 
+    public Animator animator;
     public bool isMoving;
     
     void Start()

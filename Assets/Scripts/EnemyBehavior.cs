@@ -7,28 +7,42 @@ public class EnemyBehavior : MonoBehaviour
     [SerializeField] LevelController levelControl = null;
     [SerializeField] GameObject art = null;
     [SerializeField] GameObject eyeIndicator = null;
+    [SerializeField] GameObject assassinateText = null;
     [SerializeField] GameObject playerBody = null;
+    [SerializeField] Color alertColor = Color.red;
     [SerializeField] Color visibleColor = Color.yellow;
     [SerializeField] Color hiddenColor = Color.gray;
     [SerializeField] SearchVolume search = null;
-    [SerializeField] float turnBuffer = 0.5f;
+    [SerializeField] float fleeSpeed = 4f;
+    [SerializeField] float alarmRadius = 1.2f;
 
     Animator animator;
+    CharacterController body;
     Quaternion startRotation;
     PlayerAbilities player;
+    GameObject alarm;
+    Transform target;
     bool isLooking;
+    bool isAlive = true;
     
+    public TallGrassBehavior hidingIn;
     public Transform eyes = null;
     public Vector3 lastKnownPosition;
+    public float turnBuffer = 0.5f;
+    public float assassinateRadius = 2.0f;
     public float range = 10f;
     public float FOV = 7.5f;
     public bool unpaused;
+    public bool isConcealed;
+    public bool isAlerted = false;
 
     void Start()
     {
         animator = art.GetComponent<Animator>();
+        body = GetComponent<CharacterController>();
         player = playerBody.GetComponent<PlayerAbilities>();
         startRotation = transform.rotation;
+        alarm = levelControl.levelAlarm;
     }
 
     void Update()
@@ -44,20 +58,53 @@ public class EnemyBehavior : MonoBehaviour
         {
             animator.speed = 1f;
 
-            SetIndicatorState();
-
-            if (search.playerInLOS && !player.isHidden)
+            if (isAlive)
             {
-                lastKnownPosition = playerBody.transform.position;
-                isLooking = true;
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, eyes.rotation.eulerAngles.y, 0), turnBuffer);
-                eyes.LookAt(lastKnownPosition);
+                SetIndicatorState();
+
+                if (Vector3.Distance(transform.position, playerBody.transform.position) < assassinateRadius)
+                {
+                    assassinateText.SetActive(true);
+                    assassinateText.transform.LookAt(playerBody.transform.position);
+                    player.target = this;
+                }
+                else
+                {
+                    assassinateText.SetActive(false);
+                }
+
+                if (!isAlerted)
+                {
+                    if (search.playerInLOS && !player.isHidden)
+                    {
+                        lastKnownPosition = playerBody.transform.position;
+                        isLooking = true;
+                        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, eyes.rotation.eulerAngles.y, 0), turnBuffer);
+                        eyes.LookAt(lastKnownPosition);
+                    }
+
+                    if (search.playerInLOS && !search.canSeePlayer && isLooking)
+                    {
+                        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, eyes.rotation.eulerAngles.y, 0), turnBuffer);
+                        StartCoroutine(Search(5f));
+                    }
+                }
+
+                if (isAlerted)
+                {
+                    animator.SetBool("isAlerted", true);
+                    transform.LookAt(alarm.transform.position);
+                    body.Move(transform.forward * fleeSpeed * Time.deltaTime);
+
+                    if (Vector3.Distance(transform.position, alarm.transform.position) < alarmRadius)
+                    {
+                        levelControl.GameOver();
+                    }
+                }
             }
-
-            if (search.playerInLOS && !search.canSeePlayer && isLooking)
+            else
             {
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0, eyes.rotation.eulerAngles.y, 0), turnBuffer);
-                StartCoroutine(Search(5f));
+                transform.rotation = Quaternion.Slerp(transform.rotation, target.rotation, turnBuffer);
             }
         }
     }
@@ -66,7 +113,16 @@ public class EnemyBehavior : MonoBehaviour
     {
         eyeIndicator.transform.LookAt(playerBody.transform.position);
         
-        if (search.canSeePlayer)
+        if (isAlerted)
+        {
+            if (eyeIndicator.transform.localScale.y <= 0.05f)
+            {
+                float newYScale = Mathf.Clamp(eyeIndicator.transform.localScale.y + Time.deltaTime / 5, 0f, 0.05f);
+                eyeIndicator.transform.localScale = new Vector3(0.05f, newYScale, 0);
+            }
+            eyeIndicator.GetComponent<SpriteRenderer>().color = alertColor;
+        }
+        else if (search.canSeePlayer)
             {
                 if (eyeIndicator.transform.localScale.y <= 0.05f)
                 {
@@ -93,6 +149,19 @@ public class EnemyBehavior : MonoBehaviour
                 }
                 eyeIndicator.GetComponent<SpriteRenderer>().color = hiddenColor;
             }
+    }
+
+    public IEnumerator Die()
+    {
+        isAlive = false;
+        target = playerBody.transform.GetChild(1);
+        eyeIndicator.SetActive(false);
+        assassinateText.SetActive(false);
+        yield return new WaitForSeconds(0.5f);
+        animator.SetBool("isDead", true);
+        GetComponent<CorpseBehavior>().enabled = true;
+        GetComponent<CorpseBehavior>().isConcealed = isConcealed;
+        this.enabled = false;
     }
 
     IEnumerator Search(float searchTime)
