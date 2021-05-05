@@ -41,6 +41,10 @@ public class SearchVolume : MonoBehaviour
                     canSeePlayer = false;
                 }
             }
+            else
+            {
+                canSeePlayer = false;
+            }
         }
     }
     
