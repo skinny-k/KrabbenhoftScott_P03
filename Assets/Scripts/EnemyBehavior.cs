@@ -167,6 +167,12 @@ public class EnemyBehavior : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         animator.SetBool("isDead", true);
         sfxPlayer.PlayOneShot(gruntSFX);
+        Pace movement = GetComponent<Pace>();
+        if (movement != null)
+        {
+            movement.enabled = false;
+        }
+        CorpseBehavior corpse = GetComponent<CorpseBehavior>();
         GetComponent<CorpseBehavior>().enabled = true;
         GetComponent<CorpseBehavior>().sfxPlayer = sfxPlayer;
         GetComponent<CorpseBehavior>().fallSFX = fallSFX;
