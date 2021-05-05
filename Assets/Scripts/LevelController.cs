@@ -27,12 +27,12 @@ public class LevelController : MonoBehaviour
         if (!unpaused && Input.GetKeyDown(KeyCode.Q))
         {
             Application.Quit();
+        }
 
-            if (Input.GetKeyDown(KeyCode.R) && gameIsOver)
+        if (Input.GetKeyDown(KeyCode.R) && gameIsOver)
             {
                 SceneManager.LoadScene("Level01");
             }
-        }
 
         if (alertCounter > 0)
         {
