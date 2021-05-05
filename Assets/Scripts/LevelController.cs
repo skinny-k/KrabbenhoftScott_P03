@@ -8,9 +8,11 @@ public class LevelController : MonoBehaviour
 {
     [SerializeField] Text pauseNotice = null;
     [SerializeField] Text gameOverNotice = null;
+    [SerializeField] Text gameWinNotice = null;
     [SerializeField] GameObject alert = null;
 
     public GameObject levelAlarm = null;
+    public int enemyCounter = 0;
     public int alertCounter = 0;
     public bool unpaused = true;
     public bool gameIsOver = false;
@@ -40,6 +42,18 @@ public class LevelController : MonoBehaviour
         {
             alert.SetActive(false);
         }
+
+        if (enemyCounter <= 0)
+        {
+            Win();
+        }
+    }
+
+    void Win()
+    {
+        gameIsOver = true;
+        unpaused = false;
+        gameWinNotice.gameObject.SetActive(true);
     }
 
     public void GameOver()

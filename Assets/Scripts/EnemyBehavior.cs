@@ -48,6 +48,8 @@ public class EnemyBehavior : MonoBehaviour
         sfxPlayer = GameObject.Find("AudioSource").GetComponent<AudioSource>();
         startRotation = transform.rotation;
         alarm = levelControl.levelAlarm;
+
+        levelControl.enemyCounter++;
     }
 
     void Update()
@@ -177,6 +179,7 @@ public class EnemyBehavior : MonoBehaviour
         GetComponent<CorpseBehavior>().sfxPlayer = sfxPlayer;
         GetComponent<CorpseBehavior>().fallSFX = fallSFX;
         GetComponent<CorpseBehavior>().isConcealed = isConcealed;
+        levelControl.enemyCounter--;
         if (isAlerted)
         {
             levelControl.alertCounter--;
