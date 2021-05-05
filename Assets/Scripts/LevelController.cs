@@ -8,11 +8,12 @@ public class LevelController : MonoBehaviour
 {
     [SerializeField] Text pauseNotice = null;
     [SerializeField] Text gameOverNotice = null;
-
-    public bool gameIsOver = false;
+    [SerializeField] GameObject alert = null;
 
     public GameObject levelAlarm = null;
+    public int alertCounter = 0;
     public bool unpaused = true;
+    public bool gameIsOver = false;
     
     void Update()
     {
@@ -30,12 +31,22 @@ public class LevelController : MonoBehaviour
                 SceneManager.LoadScene("Level01");
             }
         }
+
+        if (alertCounter > 0)
+        {
+            alert.SetActive(true);
+        }
+        else
+        {
+            alert.SetActive(false);
+        }
     }
 
     public void GameOver()
     {
         gameIsOver = true;
         unpaused = false;
+        alert.SetActive(false);
         gameOverNotice.gameObject.SetActive(true);
     }
 }

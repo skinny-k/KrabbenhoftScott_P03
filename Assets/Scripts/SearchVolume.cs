@@ -59,6 +59,7 @@ public class SearchVolume : MonoBehaviour
             if (!corpse.isConcealed)
             {
                 enemy.isAlerted = true;
+                enemy.levelControl.alertCounter++;
             }
         }
     }

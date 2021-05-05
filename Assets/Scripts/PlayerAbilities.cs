@@ -33,7 +33,7 @@ public class PlayerAbilities : MonoBehaviour
         }
         if (Input.GetButtonDown("Attack"))
         {
-            movement.animator.SetTrigger("attack");
+            movement.animator.SetTrigger("assassinate");
 
             if (target != null)
             {

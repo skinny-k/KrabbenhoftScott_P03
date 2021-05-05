@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class EnemyBehavior : MonoBehaviour
 {
-    [SerializeField] LevelController levelControl = null;
     [SerializeField] GameObject art = null;
     [SerializeField] GameObject eyeIndicator = null;
     [SerializeField] GameObject assassinateText = null;
@@ -12,6 +11,9 @@ public class EnemyBehavior : MonoBehaviour
     [SerializeField] Color alertColor = Color.red;
     [SerializeField] Color visibleColor = Color.yellow;
     [SerializeField] Color hiddenColor = Color.gray;
+    [SerializeField] AudioClip stabSFX = null;
+    [SerializeField] AudioClip gruntSFX = null;
+    [SerializeField] AudioClip fallSFX = null;
     [SerializeField] SearchVolume search = null;
     [SerializeField] float fleeSpeed = 4f;
     [SerializeField] float alarmRadius = 1.2f;
@@ -20,11 +22,13 @@ public class EnemyBehavior : MonoBehaviour
     CharacterController body;
     Quaternion startRotation;
     PlayerAbilities player;
+    AudioSource sfxPlayer;
     GameObject alarm;
     Transform target;
     bool isLooking;
     bool isAlive = true;
     
+    public LevelController levelControl = null;
     public TallGrassBehavior hidingIn;
     public Transform eyes = null;
     public Vector3 lastKnownPosition;
@@ -41,6 +45,7 @@ public class EnemyBehavior : MonoBehaviour
         animator = art.GetComponent<Animator>();
         body = GetComponent<CharacterController>();
         player = playerBody.GetComponent<PlayerAbilities>();
+        sfxPlayer = GameObject.Find("AudioSource").GetComponent<AudioSource>();
         startRotation = transform.rotation;
         alarm = levelControl.levelAlarm;
     }
@@ -92,6 +97,7 @@ public class EnemyBehavior : MonoBehaviour
 
                 if (isAlerted)
                 {
+                    
                     animator.SetBool("isAlerted", true);
                     transform.LookAt(alarm.transform.position);
                     body.Move(transform.forward * fleeSpeed * Time.deltaTime);
@@ -153,14 +159,22 @@ public class EnemyBehavior : MonoBehaviour
 
     public IEnumerator Die()
     {
+        sfxPlayer.PlayOneShot(stabSFX);
         isAlive = false;
         target = playerBody.transform.GetChild(1);
         eyeIndicator.SetActive(false);
         assassinateText.SetActive(false);
         yield return new WaitForSeconds(0.5f);
         animator.SetBool("isDead", true);
+        sfxPlayer.PlayOneShot(gruntSFX);
         GetComponent<CorpseBehavior>().enabled = true;
+        GetComponent<CorpseBehavior>().sfxPlayer = sfxPlayer;
+        GetComponent<CorpseBehavior>().fallSFX = fallSFX;
         GetComponent<CorpseBehavior>().isConcealed = isConcealed;
+        if (isAlerted)
+        {
+            levelControl.alertCounter--;
+        }
         this.enabled = false;
     }
 
